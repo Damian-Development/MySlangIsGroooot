@@ -1,42 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Slang is Grooooot</title>
-	<link rel="stylesheet" href="style.css">
+    <title>Slang is Grooooot</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-	<div id="game-container">
-		<canvas id="gc" class="game-canvas" width="400" height="400"></canvas>
+    <div id="game-container">
+        <canvas id="gc" class="game-canvas" width="400" height="400"></canvas>
 
-		<div id="setup-container">
-			<div id="game-info">
-				<p id="score" class="info-score">scored: </p>
-				<p id="missed" class="info-score">died: </p>
-			</div>
+        <div id="setup-container">
+            <div id="game-info">
+                <p id="score" class="info-score">scored: </p>
+                <p id="missed" class="info-score">died: </p>
+            </div>
 
-			<div id="game-setup">
-				<p class="title-slider">Learning Rate</p>
-				<input id="rangeLR" type="range" class="slider" min="0" max="100" value="65">
-				<p class="title-slider">Discount Factor</p>
-				<input id="rangeDF" type="range" class="slider" min="0" max="100" value="80">
-				<p class="title-slider">Action Randomization</p>
-				<input id="rangeRandom" type="range" class="slider" min="0" max="100" value="5">
+            <div id="game-setup">
+                <p class="title-slider">Learning Rate</p>
+                <input id="rangeLR" type="range" class="slider" min="0" max="100" value="65">
+                <p class="title-slider">Discount Factor</p>
+                <input id="rangeDF" type="range" class="slider" min="0" max="100" value="80">
+                <p class="title-slider">Action Randomization</p>
+                <input id="rangeRandom" type="range" class="slider" min="0" max="100" value="5">
 
-				<div class="item-container">
-					<input id="fullSet" class="checkbox-fullset" type="checkbox">
-					<label for="fullSet" class="title-slider">Full set of states <small>(may take longer to train)</small></label>
-				</div>
-				<div class="item-container">
-					<button id="btnTrain" type="button" class="btnGame">&#9654; TRAIN</button>
-					<button id="btnReset" type="button" class="btnGame btnReset">reset</button>
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="item-container">
+                    <input id="fullSet" class="checkbox-fullset" type="checkbox">
+                    <label for="fullSet" class="title-slider">Full set of states <small>(may take longer to train)</small></label>
+                </div>
+                <div class="item-container">
+                    <button id="btnTrain" type="button" class="btnGame">&#9654; TRAIN</button>
+                    <button id="btnReset" type="button" class="btnGame btnReset">reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<script type="text/javascript" src="game.js"></script>
-	<script type="text/javascript" src="q-learning.js"></script>
-	<script type="text/javascript" src="user-interface.js"></script>
+    <!-- Include JavaScript files -->
+    <script type="text/javascript" src="cookieHelper.js"></script>
+    <script type="text/javascript" src="game.js"></script>
+    <script type="text/javascript" src="q-learning.js"></script>
+    <script type="text/javascript" src="user-interface.js"></script>
+
+    <!-- Initialize Q-learning with cookies -->
+    <script type="text/javascript">
+        // Initialize QLearning with data from cookies
+        QLearning.load();
+
+        // Set up event listeners and UI interactions
+        document.getElementById('btnTrain').addEventListener('click', function() {
+            QLearning.startTrain();
+        });
+
+        document.getElementById('btnReset').addEventListener('click', function() {
+            QLearning.reset();
+            QLearning.save(); // Save reset state
+        });
+
+        // Update settings based on slider values
+        document.getElementById('rangeLR').addEventListener('input', function() {
+            var lr = parseFloat(this.value) / 100;
+            QLearning.changeConst.LearningRate(lr);
+        });
+
+        document.getElementById('rangeDF').addEventListener('input', function() {
+            var df = parseFloat(this.value) / 100;
+            QLearning.changeConst.DiscountFactor(df);
+        });
+
+        document.getElementById('rangeRandom').addEventListener('input', function() {
+            var rand = parseFloat(this.value) / 100;
+            QLearning.changeConst.Randomization(rand);
+        });
+
+        document.getElementById('fullSet').addEventListener('change', function() {
+            QLearning.changeConst.FullSetOfStates(this.checked);
+        });
+
+        // Save Q-learning data on page unload
+        window.addEventListener('beforeunload', function() {
+            QLearning.save();
+        });
+    </script>
 </body>
 </html>
