@@ -35,51 +35,8 @@
         </div>
     </div>
 
-    <!-- Include JavaScript files -->
-    <script type="text/javascript" src="cookieHelper.js"></script>
     <script type="text/javascript" src="game.js"></script>
     <script type="text/javascript" src="q-learning.js"></script>
     <script type="text/javascript" src="user-interface.js"></script>
-
-    <!-- Initialize Q-learning with cookies -->
-    <script type="text/javascript">
-        // Initialize QLearning with data from cookies
-        QLearning.load();
-
-        // Set up event listeners and UI interactions
-        document.getElementById('btnTrain').addEventListener('click', function() {
-            QLearning.startTrain();
-        });
-
-        document.getElementById('btnReset').addEventListener('click', function() {
-            QLearning.reset();
-            QLearning.save(); // Save reset state
-        });
-
-        // Update settings based on slider values
-        document.getElementById('rangeLR').addEventListener('input', function() {
-            var lr = parseFloat(this.value) / 100;
-            QLearning.changeConst.LearningRate(lr);
-        });
-
-        document.getElementById('rangeDF').addEventListener('input', function() {
-            var df = parseFloat(this.value) / 100;
-            QLearning.changeConst.DiscountFactor(df);
-        });
-
-        document.getElementById('rangeRandom').addEventListener('input', function() {
-            var rand = parseFloat(this.value) / 100;
-            QLearning.changeConst.Randomization(rand);
-        });
-
-        document.getElementById('fullSet').addEventListener('change', function() {
-            QLearning.changeConst.FullSetOfStates(this.checked);
-        });
-
-        // Save Q-learning data on page unload
-        window.addEventListener('beforeunload', function() {
-            QLearning.save();
-        });
-    </script>
 </body>
 </html>
