@@ -13,7 +13,7 @@ var Snake = (function () {
   var velocity = { x: 0, y: 0 };
   var player = { x: INITIAL_PLAYER.x, y: INITIAL_PLAYER.y };
 
-  var walls = false;
+  var walls = true;
 
   var fruit = { x: 1, y: 1 };
 
