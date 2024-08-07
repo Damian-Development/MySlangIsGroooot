@@ -31,8 +31,6 @@ var Snake = (function () {
   function setup () {
     canv = document.getElementById('gc');
     ctx = canv.getContext('2d');
-    // document.addEventListener('keydown', keyPush);
-    // document.body.style.backgroundColor='rgba(225,225,225,0.2)';
     
     game.reset();
   }
@@ -49,7 +47,6 @@ var Snake = (function () {
       velocity.y = 0;
       player.x = INITIAL_PLAYER.x;
       player.y = INITIAL_PLAYER.y;
-      // this.RandomFruit();
       reward = -1;
 
       lastAction = ActionEnum.none;
@@ -105,25 +102,47 @@ var Snake = (function () {
 
       reward = -0.1;
 
-      function checkWallCollision () {
-        if (player.x < 0 || player.x >= tileCount || player.y < 0 || player.y >= tileCount) {
-          gameOver();
-        }
+      function DontHitWall () {
+        if (player.x < 0) player.x = tileCount - 1;
+        if (player.x >= tileCount) player.x = 0;
+        if (player.y < 0) player.y = tileCount - 1;
+        if (player.y >= tileCount) player.y = 0;
       }
 
-      function checkSelfCollision () {
+      function HitWall () {
+        if (player.x < 1 || player.x > tileCount - 2 || player.y < 1 || player.y > tileCount - 2) {
+          respawnSnake();
+          return;
+        }
+
+        ctx.fillStyle = 'grey';
+        ctx.fillRect(0, 0, gridSize - 1, canv.height);
+        ctx.fillRect(0, 0, canv.width, gridSize - 1);
+        ctx.fillRect(canv.width - gridSize + 1, 0, gridSize, canv.height);
+        ctx.fillRect(0, canv.height - gridSize + 1, canv.width, gridSize);
+      }
+
+      function checkSelfCollision() {
         for (var i = 0; i < trail.length - 1; i++) {
           if (trail[i].x === player.x && trail[i].y === player.y) {
-            gameOver();
+            respawnSnake();
+            return;
           }
         }
       }
 
-      function gameOver() {
-        ctx.fillStyle = 'rgba(255,0,0,0.5)';
-        ctx.font = "bold 24px Helvetica";
-        ctx.fillText("Game Over", canv.width / 2 - 60, canv.height / 2);
-        clearInterval(intervalID);
+      function respawnSnake() {
+        // Save current state if needed
+        // Example: Save current Q-table if you're using Q-learning
+
+        // Reset game state
+        game.reset();
+        
+        // Ensure new fruit is not placed on the snake
+        game.RandomFruit();
+        while (trail.some(segment => segment.x === fruit.x && segment.y === fruit.y)) {
+          game.RandomFruit();
+        }
       }
 
       var stopped = velocity.x === 0 && velocity.y === 0;
@@ -139,8 +158,8 @@ var Snake = (function () {
       ctx.fillStyle = 'rgba(40,40,40,0.8)';
       ctx.fillRect(0, 0, canv.width, canv.height);
       
-      checkWallCollision();
-      checkSelfCollision();
+      if (walls) HitWall();
+      else DontHitWall();
       
       if (!stopped) {
         trail.push({ x: player.x, y: player.y });
@@ -158,6 +177,10 @@ var Snake = (function () {
       for (var i = 0; i < trail.length - 1; i++) {
         ctx.fillRect(trail[i].x * gridSize + 1, trail[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
         
+        if (!stopped && trail[i].x === player.x && trail[i].y === player.y) {
+          respawnSnake();
+          return;
+        }
         ctx.fillStyle = 'lime';
       }
       ctx.fillRect(trail[trail.length - 1].x * gridSize + 1, trail[trail.length - 1].y * gridSize + 1, gridSize - 2, gridSize - 2);
@@ -168,16 +191,9 @@ var Snake = (function () {
         if (points > pointsMax) pointsMax = points;
         reward = 1;
         game.RandomFruit();
-        // make sure new fruit didn't spawn in snake tail 
-        while ((function () {
-          for (var i = 0; i < trail.length; i++) {
-            if (trail[i].x === fruit.x && trail[i].y === fruit.y) {
-              game.RandomFruit();
-              return true;
-            }
-          }
-          return false;
-        })());
+        while (trail.some(segment => segment.x === fruit.x && segment.y === fruit.y)) {
+          game.RandomFruit();
+        }
       }
       
       ctx.fillStyle = 'red';
@@ -199,33 +215,33 @@ var Snake = (function () {
   }
   
   function keyPush (evt) {
-    switch (evt.keyCode) {
-      case 37: // left
+    switch(evt.keyCode) {
+      case 37: //left
         game.action.left();
         evt.preventDefault();
         break;
-        
-      case 38: // up
+      
+      case 38: //up
         game.action.up();
         evt.preventDefault();
         break;
-        
-      case 39: // right
+      
+      case 39: //right
         game.action.right();
         evt.preventDefault();
         break;
-        
-      case 40: // down
+      
+      case 40: //down
         game.action.down();
         evt.preventDefault();
         break;
-        
-      case 32: // space
+      
+      case 32: //space
         Snake.pause();
         evt.preventDefault();
         break;
-        
-      case 27: // esc
+      
+      case 27: //esc
         game.reset();
         evt.preventDefault();
         break;
@@ -272,7 +288,7 @@ var Snake = (function () {
     },
 
     action: function (act) {
-      switch (act) {
+      switch(act) {
         case 'left':
           game.action.left();
           break;
