@@ -107,13 +107,19 @@ var Snake = (function () {
 
       function checkCollisions() {
         // Check for collisions with walls or the snake's own body
-        if (walls) {
-          if (player.x < 0 || player.x >= tileCount || player.y < 0 || player.y >= tileCount) {
+        if (player.x < 0 || player.x >= tileCount || player.y < 0 || player.y >= tileCount) {
+          if (walls) {
             game.reset();
+          } else {
+            // Wrap around the grid
+            if (player.x < 0) player.x = tileCount - 1;
+            if (player.x >= tileCount) player.x = 0;
+            if (player.y < 0) player.y = tileCount - 1;
+            if (player.y >= tileCount) player.y = 0;
           }
         }
 
-        for (var i = 0; i < trail.length - 1; i++) {
+        for (var i = 0; i < trail.length; i++) {
           if (trail[i].x == player.x && trail[i].y == player.y) {
             game.reset();
           }
